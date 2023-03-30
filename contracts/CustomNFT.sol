@@ -23,15 +23,21 @@ contract CustomNFT is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, IERC2
 
     constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
 
-    function _baseURI() internal pure override returns (string memory) {
-        return "https://your-base-uri.com/api/token/";
-    }
+ function _baseURI() internal view override returns (string memory) {
+    return "";
+}
 
-    function safeMint(address to, string memory tokenURI, uint256 royaltyFee) public onlyOwner {
+
+	function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal override(ERC721, ERC721Enumerable) {
+  	  super._beforeTokenTransfer(from, to, tokenId,1);
+	}
+
+
+    function safeMint(address to, string memory _tokenURI, uint256 royaltyFee) public onlyOwner {
         _tokenIdCounter.increment();
         uint256 tokenId = _tokenIdCounter.current();
         _safeMint(to, tokenId);
-        _setTokenURI(tokenId, tokenURI);
+        _setTokenURI(tokenId, _tokenURI);
 
         // Set original creator and royalty fee
         _originalCreators[tokenId] = to;
@@ -44,13 +50,6 @@ contract CustomNFT is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable, IERC2
 
     function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
         return super.tokenURI(tokenId);
-    }
-
-    function _beforeTokenTransfer(address from, address to, uint256 tokenId)
-        internal
-        override(ERC721, ERC721Enumerable)
-    {
-        super._beforeTokenTransfer(from, to, tokenId);
     }
 
     function supportsInterface(bytes4 interfaceId)
